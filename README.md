@@ -23,10 +23,11 @@ Through this project, I gained hands-on experience with:
 
 ## 🚀 How to Run the Project
 
-1. **Clone the repository**
+
+ 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/your-repo-name.git
+   git clone https://github.com/BongominErickJuma/Natours
    cd your-repo-name
    ```
 
@@ -38,7 +39,7 @@ Through this project, I gained hands-on experience with:
 
 3. **Set up environment variables**
 
-   Create a `.env` file in the root directory and add the necessary configurations like:
+   Create a `config.env` file in the root directory and add the necessary configurations like:
 
    ```
    PORT=3000
@@ -50,7 +51,7 @@ Through this project, I gained hands-on experience with:
 4. **Start the development server**
 
    ```bash
-   npm run dev
+   npm run start || nodemon server.js
    ```
 
 ## 🛠 Tech Stack
@@ -67,5 +68,3 @@ Through this project, I gained hands-on experience with:
 This is a learning project and may not be production-ready. Feel free to fork, learn, or build on it!
 
 ---
-
-Let me know if you'd like to add screenshots, API documentation, or deployment instructions!
