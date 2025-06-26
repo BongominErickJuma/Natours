@@ -6,6 +6,7 @@ const reviewRoutes = require('./../routes/reviewRoutes');
 const router = express.Router();
 
 router.use('/:tourId/reviews', reviewRoutes);
+
 router
   .route('/alias-top-5')
   .get(tourController.aliasTopTours, tourController.getAllTours);
@@ -39,6 +40,8 @@ router
   .patch(
     authController.protect,
     authController.restrictTo('admin', 'lead-guide'),
+    tourController.uploadTourImages,
+    tourController.resizeTourImages,
     tourController.updateTours
   )
   .delete(
