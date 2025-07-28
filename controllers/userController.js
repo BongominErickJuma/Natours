@@ -1,22 +1,15 @@
 const multer = require('multer');
 const sharp = require('sharp');
 
+const cloudinary = require('../config/cloudinary');
+const streamifier = require('streamifier');
+
 const catchAsync = require('./../utils/catchAsync');
 const User = require('./../models/userModel');
 const AppError = require('./../utils/appError');
 const handlerFactory = require('./handlerFactory');
 
 // multer storage
-
-// const multerStorage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, 'public/img/users');
-//   },
-//   filename: (req, file, cb) => {
-//     const ext = file.mimetype.split('/')[1];
-//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-//   },
-// });
 
 const multerStorage = multer.memoryStorage();
 // multer filter
@@ -47,17 +40,54 @@ const filterObj = (obj, ...allowedFields) => {
 exports.uploadUserPhoto = upload.single('photo');
 
 exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
-  if (!req.file) return next();
+  if (!req.file) {
+    console.log('No file uploaded');
+    return next();
+  }
 
-  req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
+  try {
+    // Process image with Sharp
+    const buffer = await sharp(req.file.buffer)
+      .resize(500, 500)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toBuffer();
 
-  await sharp(req.file.buffer)
-    .resize(500, 500)
-    .toFormat('jpeg')
-    .jpeg({ quality: 90 })
-    .toFile(`public/img/users/${req.file.filename}`);
+    // Prepare Cloudinary upload options
+    const publicId = `user-${req.user._id}-${Date.now()}`;
+    const uploadOptions = {
+      folder: 'user_photos',
+      public_id: publicId,
+      resource_type: 'image',
+    };
 
-  next();
+    // Upload to Cloudinary using Promise-based approach
+    const result = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        uploadOptions,
+        (error, result) => {
+          if (error) {
+            return reject(
+              new AppError('Failed to upload image to Cloudinary', 500)
+            );
+          }
+          resolve(result);
+        }
+      );
+
+      // Pipe the buffer to the upload stream
+      streamifier.createReadStream(buffer).pipe(uploadStream);
+    });
+
+    // Save the Cloudinary URL for downstream use
+    req.file.filename = result.secure_url;
+    req.file.public_id = result.public_id; // Save public_id for potential future deletion
+
+    next();
+  } catch (err) {
+    console.error('Error in resizeUserPhoto:', err);
+    return next(new AppError('Image processing failed', 500));
+  }
 });
 
 exports.getMe = (req, res, next) => {
