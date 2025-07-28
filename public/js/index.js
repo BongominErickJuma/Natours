@@ -17,6 +17,8 @@ const signupBtn = document.querySelector('.signup--btn');
 const userDataFOrm = document.querySelector('.form-user-data');
 const userPasswordForm = document.querySelector('.form-user-password');
 const bookBtn = document.getElementById('book-tour');
+const toggleBtn = document.querySelector('.header__toggle');
+const navs = document.querySelectorAll('nav.nav');
 
 // DELEGATION
 if (mapBox) {
@@ -90,3 +92,9 @@ if (bookBtn)
 
 const alertMessage = document.querySelector('body').dataset.alert;
 if (alertMessage) showAlert('success', alertMessage, 20);
+
+if (toggleBtn) {
+  toggleBtn.addEventListener('click', () => {
+    navs.forEach((nav) => nav.classList.toggle('show'));
+  });
+}
