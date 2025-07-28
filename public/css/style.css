@@ -334,6 +334,7 @@ header.header {
   font-weight: 500;
   font-size: 1.6rem;
   transition: color 0.2s;
+  cursor: pointer;
 }
 
 .nav__el:hover {
